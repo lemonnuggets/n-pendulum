@@ -1,5 +1,5 @@
 # n-pendulum
-Simulate pendulum with n nodes
+Simulate pendulum with n nodes (not functioning yet)
 ## Instructions
 * Middle - Mouse to set node positions / to run simulation
 * Click on node and move while mouse is held to change node positions
