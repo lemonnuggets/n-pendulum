@@ -1,12 +1,13 @@
-const g = 1
+const g = 0.8
 let accelerations = []
-let n = 2 
+let n = 3 
 let masses = [] 
 let lengths = []
 let coords = []
 let mode = 1
 let bobs = []
 let currentlySetting = -1
+let trail = []
 function setup() {
     createCanvas(windowWidth, windowHeight);    
     coords = [[width / 2, height / 2]]
@@ -24,20 +25,20 @@ function indexOfBobAt(x, y){
     return -1
 }
 function mousePressed() {
-    if(mouseButton == CENTER) mode *= -1
+    if(mouseButton == CENTER) {
+        mode *= -1
+        bobs.forEach(bob => {
+            bob.a_v = 0            
+        });
+    }
 }
 function mouseReleased() {
-    print(currentlySetting)
     if(currentlySetting != -1) bobs[currentlySetting].beingSet = false
     currentlySetting = -1    
 }
-function phi(q, i){
-    if(q != i) return Math.cos(bobs[q].a - bobs[i].a)
+function phi(i, q){
+    if(q != i) return Math.cos(bobs[i].a - bobs[q].a)
     else return 1
-}
-function a(q, i){
-    console.log(`a(${q}, ${i}) = `,lengths[q] * lengths[i] * phi(q, i))
-    return lengths[q] * lengths[i] * phi(q, i)
 }
 function draw() {
     background(255)
@@ -51,41 +52,44 @@ function draw() {
         let results = []    
         let matrix = []
         for(let q = 0; q < n; q++){
-            let term1 = g * lengths[q] * Math.sin(bobs[q].a)
-            let sigma_mk = 0
-            let second_sigma = 0
+            let term1 = 0
+            let term2 = 0
+            let term3 = 0
             for(let k = q; k < n; k++){
-                sigma_mk += masses[k]
+                term1 = g * lengths[q] * Math.sin(bobs[q].a) * masses[k]
                 for(let i = 0; i <= k; i++){
-                    second_sigma += lengths[i] * bobs[i].a_v * bobs[q].a_v * Math.sin(bobs[q].a - bobs[i].a) * (bobs[i].a_v - bobs[q].a_v + 1)
+                    term2 += masses[k] * lengths[i] * lengths[q] * bobs[i].a_v *  bobs[q].a_v * Math.sin(bobs[q].a - bobs[i].a)
+                    term3 += masses[k] * lengths[i] * lengths[q] * bobs[i].a_v *  bobs[q].a_v * Math.sin(bobs[i].a - bobs[q].a) * (bobs[q].a_v - bobs[i].a_v)
                 }
             }
-            term1 *= sigma_mk
-            let term2 = lengths[q] * sigma_mk * second_sigma
-            results.push([term1 + term2])
+            results.push([term1 + term2 + term3])
             let row_q = []
             for(let k = q; k < n; k++){
                 for(let i = 0; i <= k; i++){
                     if(row_q[i] == undefined){
-                        row_q.push(a(q, i) * sigma_mk)
+                        row_q.push(masses[k] * lengths[i] * lengths[q] * phi(i, q))
                     } else {
-                        row_q[i] += a(q, i) * sigma_mk
+                        row_q[i] += masses[k] * lengths[i] * lengths[q] * phi(i, q)
                     }
-                    console.log(row_q, a(q, i))
                 }
             }
             matrix.push(row_q)
         }
-        console.log('results = ', results)
-        console.log('matrix = ', matrix)
         if(math.det(matrix)){
            let inverse_matrix = math.inv(matrix)
            accelerations = math.multiply(inverse_matrix, results)
            accelerations = math.multiply(-1, accelerations)
-           console.log(accelerations)
         }
     }
     for(let i = 0; i < bobs.length; i++){
         bobs[i].show()
     }
+    trail.push([bobs[bobs.length - 1].x, bobs[bobs.length - 1].y])
+    if(trail.length > 500) trail.shift()
+    beginShape()
+    noFill()
+    trail.forEach(coord => {
+       vertex(coord[0], coord[1]) 
+    });
+    endShape()
 }
