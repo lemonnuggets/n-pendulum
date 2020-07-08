@@ -47,6 +47,5 @@ class Bob{
             correctionFactor *= -1
         }
         this.a = correctionFactor * p5.Vector.angleBetween(reference_vector, mouse_vector)
-        console.log(this.a)
     }
 }
