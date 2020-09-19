@@ -1,6 +1,6 @@
 const g = 0.8
 let accelerations = []
-let n = 3 
+let n = 2 
 let masses = [] 
 let lengths = []
 let coords = []
@@ -11,6 +11,12 @@ let trail = []
 function setup() {
     createCanvas(windowWidth, windowHeight);    
     coords = [[width / 2, height / 2]]
+    initializeSystem()
+}
+function initializeSystem(){
+    masses = []
+    lengths = []
+    bobs = []
     for(let i = 0; i < n; i++){
         masses.push(10)
         lengths.push(50)
@@ -24,12 +30,20 @@ function indexOfBobAt(x, y){
     }
     return -1
 }
+function switchMode(){
+    mode *= -1
+    bobs.forEach(bob => {
+        bob.a_v = 0            
+    });
+}
 function mousePressed() {
-    if(mouseButton == CENTER) {
-        mode *= -1
-        bobs.forEach(bob => {
-            bob.a_v = 0            
-        });
+    if(mouseButton == CENTER) switchMode()
+}
+function keyPressed(){
+    if(key == 's' || key == 'S') switchMode()
+    else if(mode == -1 && key > '0' && key <= '9'){
+        n = Number(key)
+        initializeSystem()
     }
 }
 function mouseReleased() {
