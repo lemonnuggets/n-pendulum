@@ -1,5 +1,5 @@
 # n-pendulum
-Simulate pendulum with n nodes (not functioning yet)
+Simulate pendulum with n nodes **(not functioning yet)**
 ## Instructions
 * Use the 's' to reset velocities and set node positions / to run simulation
 * Click on node and move while mouse is held to change node positions
